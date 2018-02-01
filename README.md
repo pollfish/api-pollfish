@@ -4,6 +4,7 @@ This project aims to help the developer to get,
 show and handle a survey given by Pollfish through Pollfish API.
 
 Inside the code, there are some mandatory variables that should be filled by the developer.Below is the list of these variables:
+
 * api_key : (string) the given api_key
 * device_id : (string) the device_id
 * debug : (boolean) true on test mode
