@@ -1,0 +1,156 @@
+<html>
+	<body>
+		<div style="display: flex; align-items: center; justify-content: center; flex-direction: column;">
+			<div style="margin: 10px 10px 25px">
+				<span id='successMessage' style="display:none; background-color: green; padding: 5px" onclick="this.parentElement.style.display='none';">You have finished the survey successfully.</span>
+				<span id='warningMessageNotEligible' style="display:none; background-color: #2196F3; padding: 5px" onclick="this.parentElement.style.display='none';">You are not eligible to take the survey.</span>
+				<span id='warningMessageSurveyClosed' style="display:none; background-color: #2196F3; padding: 5px" onclick="this.parentElement.style.display='none';">The survey has closed.</span>
+				<span id='warningMessageNoSurveyAvailable' style="display:none; background-color: #2196F3; padding: 5px" onclick="this.parentElement.style.display='none';">No survey available.Please try again!</span>
+				<span id='errorMessage' style="display:none; background-color: red; padding: 5px" onclick="this.parentElement.style.display='none';">Something went wrong!</span>
+				<span id='loadingMessage' style="display:none; padding: 5px">Searching for survey....</span>
+			</div>
+			<button id="requestSurvey" onclick="fetchSurvey()"> Request a new survey</button>
+			<button id="buttonRewardedSurvey" onclick="openSurvey()" style="display:none"></button>
+		</div>
+		<div id='surveyContainer' style="display: flex; align-items: center; justify-content: center;">
+			<div id="survey" style="border: 1px solid #F7F7F7; display:none; width: 90%; height: 90%; max-width: 400px; max-height: 700px; z-index: 99998;">
+				<iframe id="pollfishSurveyFrame" frameborder="0" name="pollfishSurveyFrame" seamless="seamless" style="width: 100%; height: 100%; overflow: hidden;" ></iframe>
+			</div>
+  	</div>
+		<script>
+
+			/**
+			* This function makes a call to the api in order to fetch the survey
+			*/
+      function fetchSurvey(){
+				const api_key = 'YOUR_API_KEY';
+				const debug = true;
+				const device_id = 'YOUR_DEVICE_ID';
+				const request_uuid = 'YOUR_REQUEST_UUID';
+				
+				hideElement('requestSurvey');
+				showElement('loadingMessage');
+        const url = `https://wss.pollfish.com/v2/device/register/true?json=%7B%22api_key%22%3A%22${api_key}%22%2C%22debug%22%3A%22${debug}%22%2C%22ip%22%3A%221.2.3.4%22%2C%22device_id%22%3A%22${device_id}%22%2C%22timestamp%22%3A%221517312061131%22%2C%22encryption%22%3A%22NONE%22%2C%22version%22%3A%229%22%2C%22device_descr%22%3A%22UNKNOWN%22%2C%22os%22%3A%223%22%2C%22os_ver%22%3A%2210.13.2%22%2C%22scr_h%22%3A%221178%22%2C%22src_w%22%3A%221920%22%2C%22scr_size%22%3A%2223.46429949294128%22%2C%22manufacturer%22%3A%22UNKNOWN%22%2C%22locale%22%3A%22en-US%2Cen%2Cel%22%2C%22request_uuid%22%3A%22${request_uuid}%22%2C%22hardware_accelerated%22%3A%22false%22%2C%22video%22%3A%22true%22%2C%22survey_format%22%3A%220%22%7D&amp;dontencrypt=true&amp;webplugin=false&amp;iframewidth=400px&amp;position=BOTTOM_RIGHT` ;
+
+				// NOTE ::: Do not use the below, this is important here in order to bypass the CORS problem from localhost
+				const proxy = 'https://cors-anywhere.herokuapp.com/';
+				const oReq = new XMLHttpRequest();
+
+				oReq.addEventListener("load", function () {
+					hideElement('loadingMessage');
+					//status 204 no survey available found
+					if (this.status === 204) {
+						showAndAfterHide('warningMessageNoSurveyAvailable', 3000);
+						showElement('requestSurvey');
+					}
+					//something went wrong
+					if (this.status === '400' || this.status === '500') {
+						showAndAfterHide('errorMessage', 3000);
+						showElement('requestSurvey');
+					}
+          //load the survey into an iframe
+          var ifrm = document.getElementById('pollfishSurveyFrame');
+          ifrm = ifrm.contentWindow || ifrm.contentDocument.document || ifrm.contentDocument;
+          ifrm.document.open();
+          ifrm.document.write(this.responseText);
+          ifrm.document.close();
+				});
+
+				oReq.open("GET", proxy + url);
+				oReq.send();
+      }
+
+			/**
+			* This function is fired when the user has selected to open survey (e.g in order to unlock some feature)
+			*/
+			function openSurvey () {
+				showElement('survey');
+				removeElement('rewardText');
+				hideElement('buttonRewardedSurvey');
+			}
+
+			var coins;
+			////////////// Register and handle 'Pollfish' survey events //////////////
+			window.onmessage = function handlePollfishsEvents (e) {
+				// change that if you want to test with more or less coins
+				const acceptableCoins = 25;
+
+				//webviewLoaded
+    		if(e.data === 'webViewLoaded'){
+					console.log('webViewLoaded');
+	      }
+				// close
+				else if(e.data === 'close'){
+					coins = 0;
+					console.log('CLOSE')
+					showAndAfterHide('warningMessageSurveyClosed', 3000);
+					hideElement('survey');
+					showElement('requestSurvey');
+	      }
+				// userNotEligible
+				else if(e.data === 'userNotEligible'){
+					console.log('USER NOT ELIGIBLE');
+					showAndAfterHide('warningMessageNotEligible', 3000);
+	      }
+				// close and no show
+				else if(e.data === 'closeAndNoShow'){
+					coins = 0;
+					console.log('CLOSE AND SHOW');
+					showAndAfterHide('warningMessageSurveyClosed', 3000);
+					hideElement('survey');
+					showElement('requestSurvey');
+	      }
+				//surveycompleted
+				else if(e.data === 'setSurveyCompleted'){
+					createElementAndAppendTo('successMessage', 'span', 'earnedText', `You earned ${coins} amount of coins.`)
+					console.log('SUCCESS');
+					showAndAfterHide('successMessage', 3000);
+					setTimeout(function(){ removeElement('earnedText'); }, 4000);
+    		} else {
+        	if(e && e.data && e.data.indexOf && e.data.indexOf('surveyInfo') > -1){
+          	var data = JSON.parse(e.data);
+            if(data.type === 'surveyInfo'){
+							console.log(data);
+							coins = data.revenue;
+							// check if the revenue is ok for you
+              // if the revenue is > 25, show the button to open the survey
+              if (coins > acceptableCoins) {
+								createElementAndAppendTo('buttonRewardedSurvey', 'div', 'rewardText', `Complete the survey in order to win ${coins} coins`)
+								showElement('buttonRewardedSurvey');
+              }
+            }
+        	}
+    		}
+			};
+			////////////////////////////////////////////////////
+
+			////////////////// Helper Methods //////////////////
+			function showAndAfterHide(idOfElementToShow, timeToShow) {
+				var elem = document.getElementById(`${idOfElementToShow}`);
+				elem.style.display = 'block';
+				setTimeout(function(){ elem.style.display='none' }, timeToShow);
+			}
+
+			function showElement(idOfElementToShow) {
+				document.getElementById(`${idOfElementToShow}`).style.display = 'block';
+			}
+
+			function hideElement(idOfElementToHide) {
+				document.getElementById(`${idOfElementToHide}`).style.display = 'none';
+			}
+
+			function removeElement(idOfElemToRemove) {
+				var elem = document.querySelector(`#${idOfElemToRemove}`);
+        elem.parentNode.removeChild(elem);
+			}
+
+			function createElementAndAppendTo(idOfElementToAppend, typeOfElement, idOfNewElement, text) {
+				var newElem = document.createElement(`${typeOfElement}`)
+				newElem.setAttribute("id", `${idOfNewElement}`);
+				newElem.innerHTML = `${text}`;
+				document.getElementById(`${idOfElementToAppend}`).appendChild(newElem);
+			}
+			////////////////// End of Helper Methods //////////////////
+		</script>
+	</body>
+</html>
