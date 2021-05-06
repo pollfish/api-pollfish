@@ -12,7 +12,7 @@
 			<button id="requestSurvey" onclick="fetchSurvey()"> Request a new survey</button>
 			<button id="buttonRewardedSurvey" onclick="openSurvey()" style="display:none"></button>
 		</div>
-		<div id='surveyContainer' style="display: flex; align-items: center; justify-content: center;">
+		<div id='surveyContainer' style="height: 90%; display: flex; align-items: center; justify-content: center;">
 			<div id="survey" style="border: 1px solid #F7F7F7; display:none; width: 90%; height: 90%; max-width: 400px; max-height: 700px; z-index: 99998;">
 				<iframe id="pollfishSurveyFrame" frameborder="0" name="pollfishSurveyFrame" seamless="seamless" style="width: 100%; height: 100%; overflow: hidden;" ></iframe>
 			</div>
@@ -30,7 +30,7 @@
 				
 				hideElement('requestSurvey');
 				showElement('loadingMessage');
-        const url = `https://wss.pollfish.com/v2/device/register/true?json=%7B%22api_key%22%3A%22${api_key}%22%2C%22debug%22%3A%22${debug}%22%2C%22ip%22%3A%221.2.3.4%22%2C%22device_id%22%3A%22${device_id}%22%2C%22timestamp%22%3A%221517312061131%22%2C%22encryption%22%3A%22NONE%22%2C%22version%22%3A%229%22%2C%22device_descr%22%3A%22UNKNOWN%22%2C%22os%22%3A%223%22%2C%22os_ver%22%3A%2210.13.2%22%2C%22scr_h%22%3A%221178%22%2C%22src_w%22%3A%221920%22%2C%22scr_size%22%3A%2223.46429949294128%22%2C%22manufacturer%22%3A%22UNKNOWN%22%2C%22locale%22%3A%22en-US%2Cen%2Cel%22%2C%22request_uuid%22%3A%22${request_uuid}%22%2C%22hardware_accelerated%22%3A%22false%22%2C%22video%22%3A%22true%22%2C%22survey_format%22%3A%220%22%7D&amp;dontencrypt=true&amp;webplugin=false&amp;iframewidth=400px&amp;position=BOTTOM_RIGHT` ;
+        const url = `https://wss.pollfish.com/v2/device/register/true?json=%7B%22api_key%22%3A%22${api_key}%22%2C%22debug%22%3A%22${debug}%22%2C%22ip%22%3A%221.2.3.4%22%2C%22device_id%22%3A%22${device_id}%22%2C%22timestamp%22%3A%221517312061131%22%2C%22encryption%22%3A%22NONE%22%2C%22version%22%3A%229%22%2C%22device_descr%22%3A%22UNKNOWN%22%2C%22os%22%3A%223%22%2C%22os_ver%22%3A%2210.13.2%22%2C%22scr_h%22%3A%221178%22%2C%22src_w%22%3A%221920%22%2C%22scr_size%22%3A%2223.46429949294128%22%2C%22manufacturer%22%3A%22UNKNOWN%22%2C%22locale%22%3A%22en-US%2Cen%2Cel%22%2C%22request_uuid%22%3A%22${request_uuid}%22%2C%22hardware_accelerated%22%3A%22false%22%2C%22video%22%3A%22true%22%2C%22survey_format%22%3A%220%22%7D&dontencrypt=true&webplugin=false&iframewidth=400px&position=BOTTOM_RIGHT` ;
 
 				const oReq = new XMLHttpRequest();
 
