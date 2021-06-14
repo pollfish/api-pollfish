@@ -95,12 +95,33 @@
 					hideElement('survey');
 					showElement('requestSurvey');
 	      }
-				//surveycompleted
+				//surveycompleted without response data (old integrations)
 				else if(e.data === 'setSurveyCompleted'){
 					createElementAndAppendTo('successMessage', 'span', 'earnedText', `You earned ${coins} amount of coins.`)
 					console.log('SUCCESS');
 					showAndAfterHide('successMessage', 3000);
 					setTimeout(function(){ removeElement('earnedText'); }, 4000);
+        }
+        //surveycompleted with response data (recommended)
+        else if(e && e.data && e.data.indexOf && e.data.indexOf('surveyCompletedWithData') > -1){
+          var data = JSON.parse(e.data);
+          if(data.type === 'surveyCompletedWithData'){
+            console.log(data);
+            coins = data.survey_price;
+            // expected JSON
+            // {
+            //   revenue: data.survey_price,
+            //   survey_loi: data.survey_loi,
+            //   survey_ir: data.survey_ir,
+            //   survey_class: data.survey_class,
+            //   reward_name: data.reward_name,
+            //   reward_value: data.reward_value,
+            // }
+            createElementAndAppendTo('successMessage', 'span', 'earnedText', `You earned ${coins} amount of coins.`)
+            console.log('SUCCESS');
+            showAndAfterHide('successMessage', 3000);
+            setTimeout(function(){ removeElement('earnedText'); }, 4000);
+          }
     		} else {
         	if(e && e.data && e.data.indexOf && e.data.indexOf('surveyInfo') > -1){
           	var data = JSON.parse(e.data);
